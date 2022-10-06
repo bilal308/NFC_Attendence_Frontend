@@ -8,15 +8,43 @@ import {
   Stack,
   TextField,
   Typography,
+  OutlinedInput,
+  InputAdornment,
+  InputLabel,
+  FormControl,
+  Select,
+  MenuItem,
+  Button,
 } from "@mui/material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowBackIos } from "@mui/icons-material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const StudentForm = ({ animation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const [_, setSearchParams] = useSearchParams();
+  const [values, setValues, depart, setdepart] = useState({
+    password: "",
+    showPassword: false,
+  });
+
+  const handleChange = (prop) => (event) => {
+    setValues({ ...values, [prop]: event.target.value });
+    setdepart(event.target.value);
+  };
+
+  const handleClickShowPassword = () => {
+    setValues({
+      ...values,
+      showPassword: !values.showPassword,
+    });
+  };
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
 
   const opacityAnimate = {
     initial: {
@@ -104,17 +132,33 @@ const StudentForm = ({ animation }) => {
         >
           <TextField
             variant="outlined"
+            label="Full Name"
+            type="text"
+            placeholder="Full-Name"
+          />
+          <TextField
+            variant="outlined"
+            label="Section"
+            type="text"
+            placeholder="eg. R,G,B  "
+          />
+        </Stack>
+        <Stack
+          direction="row"
+          alignItems="center"
+          sx={{ width: "100%", gap: "1em" }}
+        >
+          <TextField
+            variant="outlined"
             label="Session"
             type="text"
             placeholder="eg. 2k19"
-            size="small"
           />
           <TextField
             variant="outlined"
             label="Program"
             type="text"
             placeholder="eg. BSCS"
-            size="small"
           />
         </Stack>
         <Stack
@@ -127,14 +171,12 @@ const StudentForm = ({ animation }) => {
             label="Class Roll No."
             type="text"
             placeholder="eg. 301"
-            size="small"
           />
           <TextField
             variant="outlined"
-            label="Full Name"
+            label="Phone No."
             type="text"
-            placeholder="Full Name"
-            size="small"
+            placeholder="eg. 0300000000"
           />
         </Stack>
         <Stack
@@ -144,16 +186,78 @@ const StudentForm = ({ animation }) => {
         >
           <TextField
             variant="outlined"
-            label="Password"
-            type="password"
-            size="small"
+            label="Gender"
+            type="Text"
+            placeholder="eg. Male"
           />
-          <TextField
-            variant="outlined"
-            label="Confirm Password"
-            type="password"
-            size="small"
-          />
+          <FormControl>
+            <InputLabel>Department</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={depart}
+              label="Department"
+              onChange={handleChange}
+            >
+              <MenuItem value={1}>Computer Science</MenuItem>
+              <MenuItem value={2}>Mechanical Engineering</MenuItem>
+              <MenuItem value={3}>Electrical Engineering</MenuItem>
+            </Select>
+          </FormControl>
+        </Stack>
+        <Stack
+          direction="row"
+          alignItems="center"
+          sx={{ width: "100%", gap: "1em" }}
+        >
+          <FormControl variant="outlined">
+            <InputLabel htmlFor="outlined-adornment-password">
+              Password
+            </InputLabel>
+            <OutlinedInput
+              id="outlined-adornment-password"
+              type={values.showPassword ? "text" : "password"}
+              value={values.password}
+              onChange={handleChange("password")}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {values.showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+              label="Password"
+            />
+          </FormControl>
+          <FormControl variant="outlined">
+            <InputLabel htmlFor="outlined-adornment-password">
+              Confirm Password
+            </InputLabel>
+            <OutlinedInput
+              id="outlined-adornment-password"
+              type={values.showPassword ? "text" : "password"}
+              value={values.password}
+              onChange={handleChange("password")}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {values.showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+              label="Password"
+            />
+          </FormControl>
         </Stack>
         <Stack
           direction="row"
@@ -174,6 +278,10 @@ const StudentForm = ({ animation }) => {
       >
         <ArrowBackIos />
       </IconButton>
+
+      <Button variant="contained" onClick={() => setIsLoading(!isLoading)}>
+        Register
+      </Button>
     </Stack>
   );
 };
