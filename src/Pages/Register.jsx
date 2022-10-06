@@ -1,17 +1,81 @@
-import { Avatar, Button, Divider, Stack, Typography } from '@mui/material';
+/* eslint-disable react-hooks/exhaustive-deps */
+import {
+  Avatar,
+  Button,
+  Divider,
+  Stack,
+  Step,
+  StepButton,
+  Stepper,
+  Typography,
+} from '@mui/material';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import ParentForm from '../Components/auth/ParentForm';
-import StudentForm from '../Components/auth/StudentForm';
+import StudentForm1 from '../Components/auth/StudentForm1';
+import StudentForm2 from '../Components/auth/StudentForm2';
+import StudentForm3 from '../Components/auth/StudentForm3';
 import NFCLogo from '../Assets/Images/NFC Iet Logo.jfif';
 
 const Register = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState(null);
   const [xAxis, setXAxis] = useState(0);
+  const [activeStep, setActiveStep] = useState(0);
+  const [completed, setCompleted] = useState({});
   const [searchParams, setSearchParams] = useSearchParams();
+  const steps = ['Step 1', 'Step 2', 'Step 3'];
+  const firstTimeAnimation = useRef(true);
+
+  useEffect(() => {
+    setXAxis('100vw');
+  }, []);
+
+  const totalSteps = () => {
+    return steps.length;
+  };
+
+  const completedSteps = () => {
+    return Object.keys(completed).length;
+  };
+
+  const isLastStep = () => {
+    return activeStep === totalSteps() - 1;
+  };
+
+  const allStepsCompleted = () => {
+    return completedSteps() === totalSteps();
+  };
+
+  const handleNext = () => {
+    const newActiveStep =
+      isLastStep() && !allStepsCompleted()
+        ? // It's the last step, but not all steps have been completed,
+          // find the first step that has been completed
+          steps.findIndex((step, i) => !(i in completed))
+        : activeStep + 1;
+    setActiveStep(newActiveStep);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleReset = () => {
+    firstTimeAnimation.current = false;
+    setActiveStep(0);
+    setCompleted({});
+  };
+
+  const handleComplete = () => {
+    firstTimeAnimation.current = false;
+    const newCompleted = completed;
+    newCompleted[activeStep] = true;
+    setCompleted(newCompleted);
+    handleNext();
+  };
 
   const formAnimation = {
     initial: {
@@ -85,16 +149,37 @@ const Register = () => {
   );
 
   useEffect(() => {
-    setXAxis('100vw');
-  }, []);
-
-  useEffect(() => {
     const role = searchParams.get('role');
     if (role === 'parent') setForm(<ParentForm animation={formAnimation} />);
     else if (role === 'student')
-      setForm(<StudentForm animation={formAnimation} />);
+      setForm(
+        <>
+          <Stepper
+            activeStep={activeStep}
+            sx={{ margin: '1.5em 0', width: '90%' }}
+          >
+            {steps.map((label, index) => (
+              <Step key={label}>
+                <StepButton color='inherit' />
+              </Step>
+            ))}
+          </Stepper>
+          {activeStep === 0 && (
+            <StudentForm1
+              reset={handleReset}
+              handleNext={handleComplete}
+              animation={firstTimeAnimation.current && formAnimation}
+            />
+          )}
+          {activeStep === 1 && (
+            <StudentForm2 handleNext={handleComplete} handleBack={handleBack} />
+          )}
+
+          {activeStep === 2 && <StudentForm3 handleBack={handleBack} />}
+        </>
+      );
     else setForm(options);
-  }, [searchParams]);
+  }, [searchParams, activeStep]);
 
   return (
     <Stack
